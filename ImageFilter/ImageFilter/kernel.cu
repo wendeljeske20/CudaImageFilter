@@ -95,7 +95,7 @@ int main()
 		embossFilter
 	};
 
-	
+
 
 	//filter
 	int filterIndex = 0;
@@ -251,7 +251,7 @@ __global__  void GrayFilter(unsigned int *defaultColor, unsigned int *newColor, 
 	float averageColor = 0.0;
 	UnpackColorBits(defaultColor[i], r, g, b);
 	averageColor = (r + g + b) / 3;
-	
+
 
 
 
@@ -331,16 +331,23 @@ __global__ void DeviceConvolutionFilter(unsigned int *defaultColor, unsigned int
 
 	for (int k = 0; k < filterSize; k++)
 	{
-		int filterX = k % *filterWidth;
-		int filterY = floor(float(k) / *filterWidth);
+		int filterX, filterY;
+		if (k < *filterWidth)
+			filterX = k;
+		else
+			filterX = k % *filterWidth;
+
+		filterY = floor(float(k) / *filterWidth);
 
 
 
-		int filterOffset = filterX - midX + *imageWidth * (filterY - midY);
-		int colorIndex = i + filterOffset;
+		int pixelOffsetX = (filterX + midX);
+		int pixelOffsetY = *imageWidth * (filterY + midY);
+
+		int pixelIndex = i + pixelOffsetX + pixelOffsetY;
 		//int index = 1360 * ();
 
-		UnpackColorBits(defaultColor[colorIndex], r, g, b);
+		UnpackColorBits(defaultColor[pixelIndex], r, g, b);
 		red += r * filter[k];
 		green += g * filter[k];
 		blue += b * filter[k];
@@ -400,7 +407,7 @@ void ProcessConvolutionFilter(unsigned int *defaultColor, unsigned int *newColor
 
 
 	// Launch a kernel on the GPU with one thread for each element.
-	DeviceConvolutionFilter << <imageSize / 512, 512 >> > (deviceColor, deviceNewColor, deviceImageWidth, deviceImageWidth, deviceFilter, deviceFilterWidth, deviceFilterFactor);
+	DeviceConvolutionFilter << <imageSize / 512, 512 >> > (deviceColor, deviceNewColor, deviceImageWidth, deviceImageHeight, deviceFilter, deviceFilterWidth, deviceFilterFactor);
 	//GrayFilter << <imageSize / 512, 512 >> > (deviceColor, deviceNewColor, deviceImageWidth, deviceImageWidth, deviceFilterFactor);
 
 
@@ -440,7 +447,7 @@ void ProcessGrayScaleFilter(unsigned int *defaultColor, unsigned int *newColor, 
 	cudaMemcpy(deviceFilterFactor, &filterFactor, sizeof(int), cudaMemcpyHostToDevice);
 
 	// Launch a kernel on the GPU with one thread for each element.
-	
+
 	GrayFilter << <imageSize / 512, 512 >> > (deviceColor, deviceNewColor, deviceFilterFactor);
 
 	cudaDeviceSynchronize();
