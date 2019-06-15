@@ -28,8 +28,8 @@ int main()
 	int imageWidth = 1360;
 	int imageHeight = 768;
 
-	CImg<unsigned char> image1("printdoinvicto.bmp");
-	CImg<unsigned char> image2("printdoinvicto.bmp");
+	CImg<unsigned char> image1("rage2.bmp");
+	CImg<unsigned char> image2("rage2.bmp");
 	CImg<unsigned char> newImage(imageWidth, imageHeight, 1, 3, 255);// = image;
 
 	float defaultFilter[] = { 1 };
@@ -200,7 +200,7 @@ int main()
 	}
 
 
-	//newImage.save("printdoinvictocomfiltro.bmp");
+	newImage.save("rage2_com_filtro.bmp");
 
 
 	return 0;
@@ -533,10 +533,10 @@ __host__ __device__ void PackColorBits(unsigned int &color, int r, int g, int b)
 	color = ((r & 0x0ff) << 16) | ((g & 0x0ff) << 8) | (b & 0x0ff);
 }
 
-__host__ __device__ void UnpackColorBits(int rgb, int &r, int &g, int &b)
+__host__ __device__ void UnpackColorBits(int color, int &r, int &g, int &b)
 {
-	r = (rgb >> 16) & 0x0ff;
-	g = (rgb >> 8) & 0x0ff;
-	b = (rgb) & 0x0ff;
+	r = (color >> 16) & 0x0ff;
+	g = (color >> 8) & 0x0ff;
+	b = (color) & 0x0ff;
 }
 
